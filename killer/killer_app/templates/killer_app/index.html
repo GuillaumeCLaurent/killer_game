@@ -1,0 +1,9 @@
+{% if game_list %}
+<ul>
+{% for game in game_list %}
+    <li><a href="/killer_app/{{ game.id }}/">{{ game.name }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No games are available.</p>
+{% endif %}
