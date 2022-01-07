@@ -13,9 +13,9 @@ def index(request):
 def detail(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
     context = {
-        'player_list': game.players,
+        'player_list': [player for player in game.players.all()],
     }
-    return HttpResponse(f"You're looking at game {game_id}, named {game.name}.")
+    return render(request, 'killer_app/detail.html', context)#HttpResponse(f"You're looking at game {game_id}, named {game.name}.")
 
 def results(request, game_id):
     return HttpResponse("You're looking at the results of game %s." % game_id)
