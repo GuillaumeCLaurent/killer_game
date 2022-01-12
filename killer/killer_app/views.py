@@ -1,6 +1,9 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, Http404
-from.models import Game
+
+from .game_form import Game_form
+
+from.models import Game, Player
 
 # Create your views here.
 def index(request):
@@ -20,8 +23,26 @@ def detail(request, game_id):
 def results(request, game_id):
     return HttpResponse("You're looking at the results of game %s." % game_id)
 
-def create(request, game_id):
-    return HttpResponse("You're plaing in game %s." % game_id)
+def create(request, player_id):
+    if request.method == 'GET':
+        context = {
+            'player': get_object_or_404(Player, pk=player_id),
+            'is_created': False
+        }
+
+    elif request.method == 'POST':
+        form = Game_form(request.POST)
+        if form.is_valid():
+            game = Game(name=form.cleaned_data['game_name'])
+            game.save()
+        else:
+            print("not valid")
+        context = {
+            'player': get_object_or_404(Player, pk=player_id),
+            'is_created': True
+        }
+    return render(request, 'killer_app/create.html', context)
+
 
 
 
