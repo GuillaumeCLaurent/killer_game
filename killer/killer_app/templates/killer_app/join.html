@@ -1,0 +1,15 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'killer_app/style.css' %}">
+
+<h1> Hello, {{ user.username|default:'Guest' }}, Welcome to the Killer Game !</h1>
+
+{% if game_list %}  
+<ul>
+{% for game in game_list %}
+    <li><a href="/killer_app/{{ game.id }}/">{{ game.name }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+
