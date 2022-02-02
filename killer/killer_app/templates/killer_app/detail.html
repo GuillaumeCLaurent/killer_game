@@ -1,9 +1,26 @@
 {% if player_list %}
+<p> Players in this game </p>
 <ul>
-{% for player in player_list %}
-    <li><a href="/killer_app/{{ player.id }}/">{{ player.name }}</a></li>
+{% for player_name in player_list %}
+    <li>{{ player_name}}</li>
 {% endfor %}
 </ul>
 {% else %}
-<p>No games are available.</p>
+<p>No players are playing.</p>
 {% endif %}
+
+<div>
+    <form method="post" action="/killer_app/{{game_id}}/" class="form-group">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                {% csrf_token %}
+                {% if not is_in_game %}
+                    <button type="submit" name="join">Join</button>
+                {% else %}
+                    <button type="submit" name="quit">Quit</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>

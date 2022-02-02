@@ -1,0 +1,26 @@
+
+
+label, input {
+    display: block;
+}
+span.helptext {
+    display: none;
+}
+
+h1 {
+    text-align: center;
+    color: white;
+}
+
+h2 {
+    text-align: center;
+}
+
+li a { 
+    text-align: center;
+    color: white;
+}
+
+body {
+    background-color: rgb(177, 138, 214);
+}
