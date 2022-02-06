@@ -11,8 +11,24 @@ from.models import Game, Player
 
 # Create your views here.
 def index(request):
-    
-    return render(request, 'killer_app/index.html', {})
+    user = request.user
+
+    if user.is_authenticated:
+        game =  user.game_set.all()
+        print(game)
+        if game:
+            print(game[0].id)
+            context = {
+                'game_id' :game[0].id,
+                'game_name' : game[0].name,
+            }
+            return render(request, 'killer_app/index.html', context)
+            
+    context = {
+        'game' :None,
+    }
+
+    return render(request, 'killer_app/index.html', context)
 
 def register(request):
     if request.method == "GET":
@@ -33,23 +49,36 @@ def register(request):
 
 def detail(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
-    
+    user = request.user
 
     if request.method == 'POST':
         
         if 'join' in request.POST:
-            game.users.add(request.user)
-            print('joined')
+            game.users.add(user)
+            request.user.player.is_in_game = True
+        
    
         if 'quit' in request.POST:
-            game.users.remove(request.user)
-            print('quitted')
+            game.users.remove(user)
+            request.user.player.is_in_game = False
+            if game == user.player.created:
+                user.player.created = None              
+          
 
-    is_in_game = request.user in  game.users.all()
+        if 'start' in request.POST:
+            game.start()
+
+        
+        user.save()
+        game.save()
+
+
+    #is_in_game = request.user in  game.users.all()
     context = {
         'player_list': [user.username for user in game.users.all()],
         'game_id': game_id, 
-        'is_in_game': is_in_game,
+        'is_in_game': request.user.player.is_in_game,
+        'is_admin': user.player.created == game,
     }
     
 
@@ -73,6 +102,9 @@ def create(request):
             game = Game(name=form.cleaned_data['game_name'])
             game.save()
             game.users.add(request.user)
+            request.user.player.created = game
+            request.user.player.is_in_game = True
+            request.user.save()
             
 
         else:

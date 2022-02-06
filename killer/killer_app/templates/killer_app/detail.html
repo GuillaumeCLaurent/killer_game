@@ -20,7 +20,14 @@
                 {% else %}
                     <button type="submit" name="quit">Quit</button>
                 {% endif %}
+                {%if is_admin%}
+                    <button type="submit" name="start">Start</button>
+                {% endif %}
             </div>
         </div>
     </form>
+</div>
+
+<div>
+	<a href="{% url 'index' %}"> Home </a>
 </div>

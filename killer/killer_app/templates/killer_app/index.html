@@ -15,7 +15,8 @@
                 <p>{{user.player.is_in_game}}</p>
             </div>
         {%else%}
-            <p> You are Playing </p>
+            <p> You are Playing in game </p>
+            <a href="/killer_app/{{ game_id }}/">{{ game_name }}</a>
         {%endif%}
     {% else %}
         <a href="{% url 'login' %}">Login</a>
