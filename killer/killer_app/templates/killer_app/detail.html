@@ -19,13 +19,38 @@
                     <button type="submit" name="join">Join</button>
                 {% else %}
                     <button type="submit" name="quit">Quit</button>
+
+                    
+
                 {% endif %}
                 {%if is_admin%}
                     <button type="submit" name="start">Start</button>
+                    <button type="submit" name="stop">Stop</button>
                 {% endif %}
             </div>
         </div>
     </form>
+</div>
+
+<div>
+    {% if user.player.target_action and user.player.target_name %}
+        <p>{{user.player.target_action}}</p>
+        <p>{{user.player.target_name}}</p>
+        <p>{{user.player.action}}</p>
+    {% else %}
+        <p>{{user.player.action}}</p>
+        <p>{{user.username}}</p>
+        <form method="post" action="/killer_app/{{game_id}}/" class="form-group">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <label for="action">Enter action:</label>   
+                <input id="action" type="text" name="action" value="Your action">
+                <button name="save" type="submit" class="btn btn-success">Save</button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
 </div>
 
 <div>

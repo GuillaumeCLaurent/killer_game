@@ -7,7 +7,11 @@
 {% if game_list %}
 <ul>
 {% for game in game_list %}
+    {% if user.player.created and user.player.created == game%}
+    <li><a href="/killer_app/{{ game.id }}/">{{ game.name }} You are the creator</a></li>
+    {% else %}
     <li><a href="/killer_app/{{ game.id }}/">{{ game.name }}</a></li>
+    {% endif %}
 {% endfor %}
 </ul>
 {% endif %}

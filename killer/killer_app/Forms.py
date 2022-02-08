@@ -13,3 +13,6 @@ class Game_search(forms.Form):
 
 class Game_join(forms.Form):
     btn = forms.CharField()
+
+class Action_form(forms.Form):
+    action = forms.CharField(label="Enter your action", max_length=200)

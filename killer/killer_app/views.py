@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 #from js2py import require
 
-from .Forms import Game_form, CustomUserCreationForm, Game_join
+from .Forms import Game_form, CustomUserCreationForm, Action_form
 
 from.models import Game, Player
 
@@ -53,25 +53,35 @@ def detail(request, game_id):
 
     if request.method == 'POST':
         
+        form = Action_form(request.POST)
+        if form.is_valid():
+            act = form.cleaned_data['action'] 
+            if act != 'Your action':
+                user.player.action = form.cleaned_data['action'] 
+
         if 'join' in request.POST:
             game.users.add(user)
             request.user.player.is_in_game = True
+            
+
+        if 'start' in request.POST:
+            game.start()
         
-   
+        if 'stop' in request.POST:
+            game.stop()
+
+        
+
         if 'quit' in request.POST:
             game.users.remove(user)
             request.user.player.is_in_game = False
             if game == user.player.created:
-                user.player.created = None              
-          
-
-        if 'start' in request.POST:
-            game.start()
-
+                user.player.created = None
+           
         
         user.save()
         game.save()
-
+        
 
     #is_in_game = request.user in  game.users.all()
     context = {
