@@ -1,39 +1,34 @@
+{% extends 'base.html' %}
+
 {% load static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'killer_app/style.css' %}">
  
-<div>
-    {% if user.is_authenticated %}
-        <a href="{% url 'logout' %}">Logout</a>
+{% block content %}
+	{% if user.is_authenticated %}
+		<div>
 
-		{% if not user.player.is_in_game %}
-			{% block content %}
-				<h3>Create a New Game</h3>
-				<br>
-				<form method="post" action="/killer_app/create/" class="form-group">
-					{% csrf_token %}
-					<div class="input-group mb-3">
-						<div class="input-group-prepend">
-						<label for="game_name">Enter name:</label>   
-						<input id="game_name" type="text" name="game_name" value="game">
-						<button name="save" type="submit" class="btn btn-success">Create</button>
+			{% if not user.player.is_in_game %}
+
+					<h3>Create a New Game</h3>
+					<br>
+					<form method="post" action="/killer_app/create/" class="form-group">
+						{% csrf_token %}
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+							<label for="game_name">Enter name:</label>   
+							<input id="game_name" type="text" name="game_name" value="game">
+							<button name="save" type="submit" class="btn btn-success">Create</button>
+							</div>
 						</div>
-					</div>
-				</form>
-			{% endblock %}
+					</form>
 
-		{% else %}
-			<h1> You are already in Game </h1>
-		{% endif %}
-
-	{% else %}
-		<a href="{% url 'login' %}">Login</a>
-		<a href='/killer_app/register'>Register</a>
+			{% else %}
+				<h1> You are already in Game </h1>
+			{% endif %}
+		
+		</div>
 	{% endif %}
-</div>
-
-<div>
-	<a href="{% url 'index' %}"> Home </a>
-</div>
+{% endblock %} 
 
 

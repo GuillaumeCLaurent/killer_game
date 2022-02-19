@@ -1,58 +1,86 @@
-{% if player_list %}
-<p> Players in this game </p>
-<ul>
-{% for player_name in player_list %}
-    <li>{{ player_name}}</li>
-{% endfor %}
-</ul>
-{% else %}
-<p>No players are playing.</p>
-{% endif %}
+{% extends 'base.html' %}
 
-<div>
-    <form method="post" action="/killer_app/{{game_id}}/" class="form-group">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                {% csrf_token %}
-                {% if not is_in_game %}
-                    <button type="submit" name="join">Join</button>
-                {% else %}
-                    <button type="submit" name="quit">Quit</button>
+{% block page_title%}
+    <h1>{{game.name}}</h1>
+{% endblock %}
 
-                    
-
-                {% endif %}
-                {%if is_admin%}
-                    <button type="submit" name="start">Start</button>
-                    <button type="submit" name="stop">Stop</button>
-                {% endif %}
-            </div>
-        </div>
-    </form>
-</div>
-
-<div>
-    {% if user.player.target_action and user.player.target_name %}
-        <p>{{user.player.target_action}}</p>
-        <p>{{user.player.target_name}}</p>
-        <p>{{user.player.action}}</p>
+{% block content %}
+    {% if player_list %}
+    <p> Voici les joueurs présent dans la partie </p>
+    <ul class="nobull">
+    {% for player_name, player_alive in player_list %}
+        <li class="{% if player_alive%}alive_player{% else %}not_alive_player{% endif %}">{{ player_name}}</li>
+        
+    {% endfor %}
+    </ul>
     {% else %}
-        <p>{{user.player.action}}</p>
-        <p>{{user.username}}</p>
-        <form method="post" action="/killer_app/{{game_id}}/" class="form-group">
-            {% csrf_token %}
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                <label for="action">Enter action:</label>   
-                <input id="action" type="text" name="action" value="Your action">
-                <button name="save" type="submit" class="btn btn-success">Save</button>
-                </div>
-            </div>
-        </form>
+    <p>No players are playing.</p>
     {% endif %}
-</div>
+    {% if not game.is_started or  is_in_game %}
+        <div>
+            <form method="post" action="/killer_app/{{game.id}}/" class="form-group">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        {% csrf_token %}
+                        
+                            {% if not is_in_game %}
+                                <button type="submit" name="join">Join</button>
+                            {% else %}
+                                <button type="submit" name="quit">Quit</button>
 
-<div>
-	<a href="{% url 'index' %}"> Home </a>
-</div>
+                                
+                            {% endif %}
+                            {%if is_admin%}
+                                {% if not game.is_started %}
+                                    <button type="submit" name="start">Start</button>
+                                {% else %}
+                                    <button type="submit" name="stop">Stop</button>
+                                {% endif %}
+                            {% endif %}
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div>
+            {% if not game.is_finished%}
+                {% if not game.is_started %}
+                    <p> L'action que vous allez donner est la suivante :</p>
+                    <p>{{user.player.action}}</p>
+                        <form method="post" action="/killer_app/{{game.id}}/" class="form-group">
+                            {% csrf_token %}
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                <label for="action">Entrez votre nouvelle action</label>   
+                                <input id="action" type="text" name="action" value="Your action">
+                                <button name="save" type="submit" class="btn btn-success">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                {% else %}
+                    {% if user.player.is_alive%}
+                        <p>{{user.player.target_action}}</p>
+                        <p>{{user.player.target_name}}</p>
+                        <form method="post" action="/killer_app/{{game.id}}/" class="form-group">
+                            {% csrf_token %}
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <button type="submit" name="kill">Kill</button>                        
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        Tu t'es fait tuer.... Dommage !
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <p> La Partie est finie, {{game.winner}} a gagné ! </p>
+            {% endif %}
+        </div>
+
+    {% else%}
+        <p> Désolé, la partie est en cours </p>
+    {% endif %}
+{% endblock %}

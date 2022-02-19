@@ -16,6 +16,17 @@
 </ul>
 {% endif %}
 
+<form method="post" action="/killer_app/join/" class="form-group">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+        <label for="search">Search</label>   
+        <input id="search" type="text" name="search" value="Your search">
+        <button name="save" type="submit" class="btn btn-success">Search</button>
+        </div>
+    </div>
+</form>
+
 <div>
 	<a href="{% url 'index' %}"> Home </a>
 </div>

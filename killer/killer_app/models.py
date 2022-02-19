@@ -14,18 +14,33 @@ class Game(models.Model):
     name = models.CharField(max_length=200, unique = True)
     begin_date = models.DateTimeField('date published', null=True)
     users = models.ManyToManyField(User)
+    is_started = models.BooleanField(default=False)
+    is_finsished = models.BooleanField(default=False)
+    winner = models.CharField(max_length=200, null=True)
+
+
+    def is_ready(self):
+        for user in self.users.all():
+            if not user.player.action :
+                return False
+        return True
+
 
     def stop(self):
         for user in self.users.all():
             user.player.target_name = None
             user.player.target_action = None
             user.save()
+        self.is_started = False
             
 
     def start(self):
-
+        
         actions_list = [str(user.player.action) for user in self.users.all()]
         users_list = [user for user in self.users.all()]
+
+        for user in users_list:
+            user.player.is_alive = True
         
         list = [elmt for elmt in zip(actions_list, users_list)]
 
@@ -39,33 +54,41 @@ class Game(models.Model):
             list[i][1].player.target_action = list[ind2][0]
             list[i][1].player.target_name = list[ind1][1].username
             list[i][1].save()
-          
-        """
-        n = len(al)
-        #res = {}
-        ind_l= [i for i in range(0, n)]
 
-        ind = random.choice(ind_l)
-        first_ind = ind
-        ind_l.remove(ind)
+        self.is_started = True
+        self.is_finsished = False
+        self.save()
 
-        while(len(ind_l)>1):  
+    def kill_player(self, ukiller, ukilled):
+        ukilled.player.is_alive = False
+        ukilled.save()
+
+        if not self.check_end():
+
+            ukiller.player.target_name = ukilled.player.target_name
+            ukiller.player.target_action = ukilled.player.target_action
+            ukiller.save()
+        
+        else:
+            self.is_finished = True
+            self.is_started = False
+            self.save()
+
     
-            sec_ind = random.choice(ind_l)
-            #res[pl[ind]] = (al[sec_ind], pl[sec_ind])
-            pl[ind].player.target_action = al[sec_ind]
-            pl[ind].player.target_name = pl[sec_ind].username
-            pl[ind].save()
-            ind = sec_ind
-            ind_l.remove(ind)
-        
-        
-        #res[pl[ind_l[0]]] = (al[first_ind], pl[first_ind])
-        pl[ind].player.target_action = al[first_ind]
-        pl[ind].player.target_name = pl[first_ind].username
-        pl[ind].save()
-        #return res
-        """
+    def check_end(self):
+        users_list = [user for user in self.users.all()]
+        false_counter = 0
+        winner = users_list[0]
+        for user in users_list:
+            if user.player.is_alive :
+                winner = user.username
+                false_counter = false_counter + 1
+
+        if false_counter <= 1:
+            self.winner = winner
+            return True
+
+        return False
 
     class Meta:
         ordering = ['name']
@@ -83,6 +106,7 @@ class Player(models.Model):
     target_name = models.CharField(max_length=200, null=True)
     target_action = models.CharField(max_length=200, null=True)
     created = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
+    is_alive = models.BooleanField(default=True)
 
 
     """

@@ -1,26 +1,46 @@
 
+body {
+    
+    background-color: rgb(177, 138, 214);
+}
 
-label, input {
-    display: block;
+
+
+div {
+    font-size: large;
+    font-family: sans-serif;
 }
-span.helptext {
-    display: none;
-}
+
 
 h1 {
+    background-color: rgb(177, 0, 214);
+    font-family: cursive;
     text-align: center;
     color: white;
+}
+
+
+.account_details, .main_content{
+    display: block;
+}
+
+span.helptext {
+    display: none;
 }
 
 h2 {
     text-align: center;
 }
 
-li a { 
-    text-align: center;
-    color: white;
+li.alive_player{ 
+    color: green;
 }
 
-body {
-    background-color: rgb(177, 138, 214);
+li.not_alive_player{ 
+    color: red;
 }
+
+.nobull {
+    list-style-type: none;
+}
+

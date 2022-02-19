@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 #from js2py import require
 
-from .Forms import Game_form, CustomUserCreationForm, Action_form
+from .Forms import Game_form, CustomUserCreationForm, Action_form, Game_search_form
 
 from.models import Game, Player
 
@@ -63,14 +63,16 @@ def detail(request, game_id):
             game.users.add(user)
             request.user.player.is_in_game = True
             
+        if 'kill' in request.POST:
+            print()
+            game.kill_player(user, game.users.filter(username=user.player.target_name)[0])
 
         if 'start' in request.POST:
             game.start()
-        
-        if 'stop' in request.POST:
-            game.stop()
 
         
+        if 'stop' in request.POST:
+            game.stop()        
 
         if 'quit' in request.POST:
             game.users.remove(user)
@@ -85,10 +87,12 @@ def detail(request, game_id):
 
     #is_in_game = request.user in  game.users.all()
     context = {
-        'player_list': [user.username for user in game.users.all()],
-        'game_id': game_id, 
-        'is_in_game': request.user.player.is_in_game,
+        'player_list': [(user.username, user.player.is_alive) for user in game.users.all()],
+        'game': game, 
+        'is_in_game': request.user in game.users.all(),
         'is_admin': user.player.created == game,
+        'is_ready': game.is_ready(), 
+        
     }
     
 
@@ -127,7 +131,15 @@ def create(request):
 
 
 def join(request):
-    game_list = Game.objects.order_by('name')
+    if request.method == 'POST':
+        form = Game_search_form(request.POST)
+        if form.is_valid():
+            game_list = Game.objects.filter(name=form.cleaned_data['search'])
+        else:
+            game_list = Game.objects.order_by('name')
+    else:
+        game_list = Game.objects.order_by('name')
+    
     context = {
         'game_list': game_list,
     }
