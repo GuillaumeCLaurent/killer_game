@@ -6,18 +6,32 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import random
+import string 
 
 # Create your models here.
-
+def id_generator(size=6, chars= string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
 # Define Game model
 class Game(models.Model):
-    name = models.CharField(max_length=200, unique = True)
+    name = models.CharField(max_length=200)
     begin_date = models.DateTimeField('date published', null=True)
     users = models.ManyToManyField(User)
     is_started = models.BooleanField(default=False)
     is_finsished = models.BooleanField(default=False)
     winner = models.CharField(max_length=200, null=True)
 
+    unique_id = models.CharField(max_length=6, null=True, blank=True, unique=True)
+
+    # Sample of an ID generator - could be any string/number generator
+    # For a 6-char field, this one yields 2.1 billion unique IDs
+    
+    def save(self): 
+        if not self.unique_id:
+            # Generate ID once, then check the db. If exists, keep trying.
+            self.unique_id = id_generator()
+            while Game.objects.filter(unique_id=self.unique_id).exists():
+                self.unique_id = id_generator()
+        super(Game, self).save()
 
     def is_ready(self):
         for user in self.users.all():
@@ -25,17 +39,16 @@ class Game(models.Model):
                 return False
         return True
 
-
     def stop(self):
         for user in self.users.all():
             user.player.target_name = None
             user.player.target_action = None
             user.save()
-        self.is_started = False
-            
+        self.is_started = False    
 
     def start(self):
-        
+
+        print("Starting")        
         actions_list = [str(user.player.action) for user in self.users.all()]
         users_list = [user for user in self.users.all()]
 
@@ -54,6 +67,7 @@ class Game(models.Model):
             list[i][1].player.target_action = list[ind2][0]
             list[i][1].player.target_name = list[ind1][1].username
             list[i][1].save()
+            print(list[i][1].player.target_action, list[i][1].player.target_name)
 
         self.is_started = True
         self.is_finsished = False
@@ -73,7 +87,6 @@ class Game(models.Model):
             self.is_finished = True
             self.is_started = False
             self.save()
-
     
     def check_end(self):
         users_list = [user for user in self.users.all()]
@@ -81,7 +94,7 @@ class Game(models.Model):
         winner = users_list[0]
         for user in users_list:
             if user.player.is_alive :
-                winner = user.username
+                winner = user.player.player_name
                 false_counter = false_counter + 1
 
         if false_counter <= 1:
@@ -101,6 +114,7 @@ class Game(models.Model):
 # Define Player model
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    player_name = models.CharField(max_length=200, null=True)
     is_in_game = models.BooleanField(default=False)
     action = models.CharField(max_length=200, null=True)
     target_name = models.CharField(max_length=200, null=True)

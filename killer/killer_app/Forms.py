@@ -17,5 +17,8 @@ class Game_join(forms.Form):
 class Action_form(forms.Form):
     action = forms.CharField(label="Enter your action", max_length=200)
 
+class Name_form(forms.Form):
+    name = forms.CharField(label="Enter your player name", max_length=200)
+
 class Game_search_form(forms.Form):
     search = forms.CharField(label='Search', max_length=100)

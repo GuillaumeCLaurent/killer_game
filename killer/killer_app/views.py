@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 #from js2py import require
 
-from .Forms import Game_form, CustomUserCreationForm, Action_form, Game_search_form
+from .Forms import Game_form, CustomUserCreationForm, Action_form, Game_search_form, Game_join, Name_form
 
 from.models import Game, Player
 
@@ -19,7 +19,7 @@ def index(request):
         if game:
             print(game[0].id)
             context = {
-                'game_id' :game[0].id,
+                'game_id' :game[0].unique_id,
                 'game_name' : game[0].name,
             }
             return render(request, 'killer_app/index.html', context)
@@ -48,23 +48,31 @@ def register(request):
 
 
 def detail(request, game_id):
-    game = get_object_or_404(Game, pk=game_id)
+    queryset = Game.objects.filter(unique_id=game_id)
+    print(queryset)
+    game = get_object_or_404(queryset) #Game, pk=game_id)
+    print(game.unique_id)
     user = request.user
 
     if request.method == 'POST':
         
-        form = Action_form(request.POST)
-        if form.is_valid():
-            act = form.cleaned_data['action'] 
-            if act != 'Your action':
-                user.player.action = form.cleaned_data['action'] 
+        
+        if 'save' in request.POST:
+            form = Action_form(request.POST)
+            if form.is_valid():
+                act = form.cleaned_data['action'] 
+                if act != 'Your action':
+                    user.player.action = form.cleaned_data['action'] 
 
         if 'join' in request.POST:
-            game.users.add(user)
-            request.user.player.is_in_game = True
+            form = Name_form(request.POST)
+            if form.is_valid():
+                game.users.add(user)
+                act = form.cleaned_data['name'] 
+                user.player.player_name = act
+                request.user.player.is_in_game = True
             
         if 'kill' in request.POST:
-            print()
             game.kill_player(user, game.users.filter(username=user.player.target_name)[0])
 
         if 'start' in request.POST:
@@ -75,10 +83,16 @@ def detail(request, game_id):
             game.stop()        
 
         if 'quit' in request.POST:
+            
             game.users.remove(user)
             request.user.player.is_in_game = False
+
             if game == user.player.created:
                 user.player.created = None
+                for usr in game.users.all():
+                    game.users.remove(usr)
+                    usr.player.is_in_game = False
+                game.delete()
            
         
         user.save()
@@ -87,7 +101,7 @@ def detail(request, game_id):
 
     #is_in_game = request.user in  game.users.all()
     context = {
-        'player_list': [(user.username, user.player.is_alive) for user in game.users.all()],
+        'player_list': [(user.player.player_name, user.player.is_alive) for user in game.users.all()],
         'game': game, 
         'is_in_game': request.user in game.users.all(),
         'is_admin': user.player.created == game,
@@ -134,7 +148,7 @@ def join(request):
     if request.method == 'POST':
         form = Game_search_form(request.POST)
         if form.is_valid():
-            game_list = Game.objects.filter(name=form.cleaned_data['search'])
+            game_list = Game.objects.filter(unique_id=form.cleaned_data['search'])
         else:
             game_list = Game.objects.order_by('name')
     else:
