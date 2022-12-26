@@ -56,7 +56,6 @@ def detail(request, game_id):
 
     if request.method == 'POST':
         
-        
         if 'save' in request.POST:
             form = Action_form(request.POST)
             if form.is_valid():
@@ -68,35 +67,40 @@ def detail(request, game_id):
             form = Name_form(request.POST)
             if form.is_valid():
                 game.users.add(user)
-                act = form.cleaned_data['name'] 
-                user.player.player_name = act
+                name = form.cleaned_data['name'] 
+                user.player.player_name = name
                 request.user.player.is_in_game = True
             
         if 'kill' in request.POST:
-            game.kill_player(user, game.users.filter(username=user.player.target_name)[0])
+            game.kill_player(user, game.users.filter(id=user.player.target_id)[0])
+        
+        if 'discovered' in request.POST:
+            game.player_discovered(user,game.users.filter(id=user.player.chaser_id)[0] ,game.users.filter(id=user.player.target_id)[0])
 
         if 'start' in request.POST:
             game.start()
-
         
         if 'stop' in request.POST:
             game.stop()        
 
         if 'quit' in request.POST:
-            
-            game.users.remove(user)
-            request.user.player.is_in_game = False
+            #game.users.remove(user)
+            user.player.is_in_game = False
 
             if game == user.player.created:
                 user.player.created = None
                 for usr in game.users.all():
-                    game.users.remove(usr)
-                    usr.player.is_in_game = False
+                    #game.users.remove(usr)
+                    usr.player.quit_game()
+                    usr.save()
                 game.delete()
-           
-        
+                user.save()
+            else:
+                game.users.remove(user)
+                user.player.quit_game()
+                user.save()
+            return redirect(reverse("index"))
         user.save()
-        game.save()
         
 
     #is_in_game = request.user in  game.users.all()
@@ -132,11 +136,12 @@ def create(request):
             game.users.add(request.user)
             request.user.player.created = game
             request.user.player.is_in_game = True
+            request.user.player.player_name = form.cleaned_data['player_name']
             request.user.save()
-            
 
         else:
             print("not valid")
+
         context = {
             #'player': get_object_or_404(Player, pk=player_id),
             #'is_created': True

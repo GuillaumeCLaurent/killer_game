@@ -41,8 +41,7 @@ class Game(models.Model):
 
     def stop(self):
         for user in self.users.all():
-            user.player.target_name = None
-            user.player.target_action = None
+            user.player.quit_game()
             user.save()
         self.is_started = False    
 
@@ -65,7 +64,13 @@ class Game(models.Model):
             ind2 = (i-1)%n
             #res[list[i][1]] = (list[ind1][1], list[ind2][0])
             list[i][1].player.target_action = list[ind2][0]
-            list[i][1].player.target_name = list[ind1][1].username
+
+            list[i][1].player.target_name = list[ind1][1].player.player_name
+            list[i][1].player.target_id = list[ind1][1].id
+            
+            list[ind1][1].player.chaser_name = list[i][1].player.player_name
+            list[ind1][1].player.chaser_id = list[i][1].id
+
             list[i][1].save()
             print(list[i][1].player.target_action, list[i][1].player.target_name)
 
@@ -74,8 +79,7 @@ class Game(models.Model):
         self.save()
 
     def kill_player(self, ukiller, ukilled):
-        ukilled.player.is_alive = False
-        ukilled.save()
+        
 
         if not self.check_end():
 
@@ -86,8 +90,26 @@ class Game(models.Model):
         else:
             self.is_finished = True
             self.is_started = False
+            self.winner = ukiller.player.player_name
             self.save()
+
+        ukilled.player.reset()
+        ukilled.save()
     
+    def player_discovered(self, user, user_chaser, user_target):
+        
+
+        if not self.check_end():
+            user_chaser.player.taget_name = user_target.player.player_name
+            user_chaser.player.target_id = self.users.filter(id=user_target.player.player_name)[0]
+            
+        
+        user_chaser.save()
+
+        user.player.reset()
+        user.save()
+
+
     def check_end(self):
         users_list = [user for user in self.users.all()]
         false_counter = 0
@@ -114,15 +136,35 @@ class Game(models.Model):
 # Define Player model
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+
     player_name = models.CharField(max_length=200, null=True)
     is_in_game = models.BooleanField(default=False)
+
     action = models.CharField(max_length=200, null=True)
     target_name = models.CharField(max_length=200, null=True)
+    target_id = models.IntegerField(null=True)
     target_action = models.CharField(max_length=200, null=True)
+
+    chaser_name = models.CharField(max_length=200, null=True)
+    chaser_id = models.IntegerField(null=True)
+
     created = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
     is_alive = models.BooleanField(default=True)
 
 
+    def reset(self):
+        self.action = None
+        self.target_action = None
+        self.target_name = None
+        self.target_id = None
+        self.chaser_id = None
+        self.chaser_name = None
+
+    def quit_game(self):
+        self.reset()
+        self.is_in_game = False
+        self.player_name = None
+    
     """
     class Meta:
         ordering = ['user.username']

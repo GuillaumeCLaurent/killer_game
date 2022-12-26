@@ -16,9 +16,14 @@
 						{% csrf_token %}
 						<div class="input-group mb-3">
 							<div class="input-group-prepend">
-							<label for="game_name">Enter name:</label>   
-							<input id="game_name" type="text" name="game_name" value="game">
-							<button name="save" type="submit" class="btn btn-success">Create</button>
+								<label for="game_name">Créer la partie </label>   
+								<input id="game_name" type="text" name="game_name" value="game">
+								
+                                <label for="player_name">en tant que </label>   
+                                <input id="player_name" type="text" name="player_name" value="{{user.username}}">
+
+								<button name="save" type="submit" class="btn btn-success">Create</button>
+
 							</div>
 						</div>
 					</form>
