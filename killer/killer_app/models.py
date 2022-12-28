@@ -67,7 +67,7 @@ class Game(models.Model):
 
             list[i][1].player.target_name = list[ind1][1].player.player_name
             list[i][1].player.target_id = list[ind1][1].id
-            
+
             list[ind1][1].player.chaser_name = list[i][1].player.player_name
             list[ind1][1].player.chaser_id = list[i][1].id
 
@@ -101,13 +101,17 @@ class Game(models.Model):
 
         if not self.check_end():
             user_chaser.player.taget_name = user_target.player.player_name
-            user_chaser.player.target_id = self.users.filter(id=user_target.player.player_name)[0]
+            user_chaser.player.target_id = user_target.id
+
+            user_target.player.chaser_name = user_chaser.player.player_name
+            user_target.player.chaser_id = user_chaser.id
             
         
         user_chaser.save()
 
         user.player.reset()
         user.save()
+
 
 
     def check_end(self):

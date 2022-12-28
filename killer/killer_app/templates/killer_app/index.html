@@ -2,35 +2,18 @@
 
 {% load static %}
 
-
-
 {% block page_title %}
 <h1> Hello {{ user.username }}, Bienvenue dans le jeu du Killer !</h1>
 {% endblock %}
 
 {% block content %}
-    <p>
-        Mais qu'est ce que le jeu du killer ?<br>
-        Le killer est un jeu parfait pour les soirées ou weekend entre amis.<br>
-        Pour remporter la victoire, il vous faudra tuer (killer) tout vos adversaires en leur faisant réaliser des gages.<br>
-        Pour jouer, un des joueurs doit créer une partie et les autres pourront la rejoindre grace à son id de partie.<br>
-        Ensuite chaque joueur propose un gage à faire réaliser. Exemple de gage : "Cuire un oeuf avec du Coca".<br>
-        Une fois la partie lancée, chaque joueur se voit attribuer un nom (sa cible) et un un gage.<br>
-        Exemple : Charlotte, "Décapsuler une bouteille avec un aspirateur".<br>
-        Vous devez ensuite vous débrouiller pour que votre cible réalise l'action qui vous a été attribuée.<br> 
-        Avec l'exemple cité avant votre but sera de faire en sorte que Charlotte décapsule une bouteille avec un aspirateur.<br>
-        Si vous y arrivez, vous avez "killé" votre cible. Elle est alors éliminée. Vous récupérez alors sa cible et son action.<br>
-        Votre nouveau but est de killer votre nouvelle cible.<br>
-        La partie s'arrête lorsqu'il ne reste plus qu'un seul joueur qui devient alors le gagnant !<br>
-        <b> Attention, ne mettez pas les autres joueurs en danger avec des gages inconscient bande de fous  .</b>
-    </p>
     {% if user.is_authenticated %}
 
         {% if not user.player.is_in_game %}
             <div> 
                 <a href="{% url 'create' %}">Créer une partie</a>
                 <a href="{% url 'join' %}">Rejoindre une partie</a>
-                
+
             </div>
         {%else%}
             <div class="en_jeu">
@@ -40,12 +23,22 @@
         {%endif%}
 
     {%endif%}
+    <div class="description">
+        <h3>Mais qu'est ce que le jeu du killer ?</h3>
+        <p>Le killer est un jeu parfait pour les soirées ou weekend entre amis.</p>
+
+        <p>Pour remporter la victoire, il vous faudra tuer (killer) tout vos adversaires en leur faisant réaliser des gages.<br>
+        Pour jouer, un des joueurs doit créer une partie et les autres pourront la rejoindre grace à son id de partie.<br>
+        Ensuite chaque joueur propose un gage à faire réaliser.<br>
+        Exemple de gage : "Cuire un oeuf avec du Coca".<br>
+        Une fois la partie lancée, chaque joueur se voit attribuer un nom (sa cible) et un un gage.<br>
+        <b>Exemple : Charlotte, "Décapsuler une bouteille avec un aspirateur".</b><br></p>
+
+        <p>Vous devez ensuite vous débrouiller pour que votre cible réalise l'action qui vous a été attribuée.<br> 
+        Avec l'exemple cité avant votre but sera de faire en sorte que Charlotte décapsule une bouteille avec un aspirateur.<br>
+        Si vous y arrivez, vous avez "killé" votre cible. Elle est alors éliminée. Vous récupérez alors sa cible et son action.<br>
+        Votre nouveau but est de killer votre nouvelle cible.<br>
+        La partie s'arrête lorsqu'il ne reste plus qu'un seul joueur qui devient alors le gagnant !<br>
+        <b> Attention, ne mettez pas les autres joueurs en danger avec des gages inconscient bande de fous  .</b></p>
+    </div>
 {% endblock %}
-
-
-
-
-
-diprozone
-onctose
-

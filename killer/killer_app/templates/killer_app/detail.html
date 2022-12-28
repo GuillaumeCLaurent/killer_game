@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block page_title%}
-    <h1>{{game.name}}</h1>
-    <p>ID = {{game.unique_id}}</p>
+    <h1>{{game.name}}, ID = {{game.unique_id}}</h1>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +27,7 @@
                                 <button type="submit" name="join">Join</button>
                                 <label for="name">en tant que</label>   
                                 <input id="name" type="text" name="name" value="{{user.username}}">
-                                
+
                             {% else %}
                                 <button type="submit" name="quit">Quit</button>
 
