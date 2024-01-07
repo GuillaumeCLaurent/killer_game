@@ -98,7 +98,7 @@ def detail(request, game_id):
             else:
                 game.users.remove(user)
                 user.player.quit_game()
-                user.save()
+                user.save() 
             return redirect(reverse("index"))
         user.save()
         
